@@ -2,22 +2,22 @@
 
 AI Engineering Curriculum · Level 30 · [learning](https://github.com/ai-engineering-curriculum/rag-engineer-learning) · [solutions](https://github.com/ai-engineering-curriculum/rag-engineer-solutions)
 
-_Generated 2026-11-03 by `aicg org completeness`._
+_Generated 2026-11-08 by `aicg org completeness`._
 
-**Overall: 50%**
+**Overall: 58%**
 
 | | Progress | Count |
 |---|---|---|
 | Learning | `██████████` 100% | 13/13 modules complete |
-| Solutions | `░░░░░░░░░░` 0% | 0/62 exercises solved |
+| Solutions | `██░░░░░░░░` 16% | 10/62 exercises solved |
 
 ## Modules
 
 | Module | Status | Words | Chapters | Exercises | Quiz | Solutions |
 |---|---|---|---|---|---|---|
 | `mod-001-rag-foundations` | ✅ Complete | 3,365 | 0 | 0 | — | 0/0 |
-| `mod-101-retrieval-engineering-foundations` | ✅ Complete | 14,808 | 6 | 5 | — | 0/5 |
-| `mod-102-document-ingestion-and-chunking` | ✅ Complete | 21,652 | 8 | 5 | — | 0/5 |
+| `mod-101-retrieval-engineering-foundations` | ✅ Complete | 14,808 | 6 | 5 | — | 5/5 |
+| `mod-102-document-ingestion-and-chunking` | ✅ Complete | 21,652 | 8 | 5 | — | 5/5 |
 | `mod-103-embeddings-selection-and-benchmarking` | ✅ Complete | 35,202 | 9 | 6 | — | 0/6 |
 | `mod-104-vector-databases-and-ann-tuning` | ✅ Complete | 28,704 | 9 | 6 | — | 0/6 |
 | `mod-105-lucene-family-and-ltr` | ✅ Complete | 28,320 | 7 | 5 | — | 0/5 |
