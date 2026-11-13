@@ -145,25 +145,38 @@ class LLMClient(Protocol):
     def complete(self, prompt: str, *, max_tokens: int = 256) -> str: ...
 
 
-# Prefixes that indicate the LLM refused instead of answering. A nonempty
-# refusal ("I cannot help with that request.") would otherwise be embedded
-# as if it were a hypothetical passage and used for dense retrieval.
-_REFUSAL_PREFIXES = (
+# Phrases that indicate the LLM refused instead of answering. A nonempty
+# refusal (e.g. "I cannot help with that request." or "Unfortunately, I
+# will not answer.") would otherwise be embedded as if it were a
+# hypothetical passage and used for dense retrieval.
+_REFUSAL_PHRASES = (
     "i cannot",
     "i can't",
+    "i will not",
+    "i won't",
     "i am unable",
     "i'm unable",
     "i am sorry",
     "i'm sorry",
-    "sorry,",
+    "i refuse",
+    "cannot help",
+    "can't help",
+    "cannot assist",
+    "can't assist",
+    "unable to help",
+    "unable to assist",
     "as an ai",
     "as a language model",
 )
 
 
 def _looks_like_refusal(text: str) -> bool:
-    head = text.lstrip().lower()
-    return any(head.startswith(p) for p in _REFUSAL_PREFIXES)
+    # Scan the first sentence or so (not the full passage) so a legitimate
+    # mention of "cannot" deep inside a real answer does not trigger the
+    # fallback. Substring match (not just prefix) catches lead-ins like
+    # "Unfortunately, I cannot help..." that a prefix check would miss.
+    head = text.lstrip().lower()[:200]
+    return any(phrase in head for phrase in _REFUSAL_PHRASES)
 
 
 @dataclass
