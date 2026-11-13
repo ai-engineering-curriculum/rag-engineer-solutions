@@ -246,7 +246,7 @@ Per-query delta (RRF − better single system):
 | q03 | Dense (0.70) | −0.05 | Definition query — dense already perfect; BM25 injected a lower-rel doc. |
 | q04 | BM25 (0.58) | +0.00 | BM25 already saturated; RRF neither helped nor hurt. |
 | q05 | Dense (0.42) | +0.15 | Both systems disagreed strongly; voted top-3 emerged from the overlap. |
-| … |
+| … | … | … | … |
 
 The point of the per-query table is that "RRF helped on average" is the
 least-interesting form of the result. The interesting form is **when** it

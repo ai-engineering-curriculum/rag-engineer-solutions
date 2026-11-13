@@ -1,8 +1,8 @@
 # Exercise 05 — Solution: Filter-Heavy Hybrid Composition Drill
 
 This is a reference solution for
-`exercise-05-filter-heavy-hybrid-composition-drill.md`. It is a **design
-+ implementation** exercise. The learner composes a hybrid retriever
+`exercise-05-filter-heavy-hybrid-composition-drill.md`. It is a
+**design and implementation** exercise. The learner composes a hybrid retriever
 (BM25 + dense + RRF, from the prior exercises) with *hard filters* —
 tenant scopes, ACLs, time windows, structured facets — and defends the
 ordering of filter vs. rank-vs-fuse decisions against three failure
