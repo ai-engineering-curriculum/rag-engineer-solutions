@@ -158,6 +158,7 @@ _REFUSAL_PHRASES = (
     "i'm unable",
     "i am sorry",
     "i'm sorry",
+    "i'm afraid i",
     "i refuse",
     "cannot help",
     "can't help",
@@ -165,6 +166,9 @@ _REFUSAL_PHRASES = (
     "can't assist",
     "unable to help",
     "unable to assist",
+    "refusing to",
+    "my apologies",
+    "sorry,",
     "as an ai",
     "as a language model",
 )
