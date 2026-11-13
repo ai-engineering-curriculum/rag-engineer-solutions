@@ -8,3 +8,4 @@
 | 2026-11-07 | `fill-mod-102-document-ingestion-and-chunking-solutions` | `mod-102-document-ingestion-and-chunking` | Fill mod-102-document-ingestion-and-chunking module exercise solutions |
 | 2026-11-11 | `fill-mod-103-embeddings-selection-and-benchmarking-solutions` | `mod-103-embeddings-selection-and-benchmarking` | Fill mod-103-embeddings-selection-and-benchmarking module exercise solutions |
 | 2026-11-11 | `fill-mod-104-vector-databases-and-ann-tuning-solutions` | `mod-104-vector-databases-and-ann-tuning` | Fill mod-104-vector-databases-and-ann-tuning module exercise solutions |
+| 2026-11-12 | `fill-mod-105-lucene-family-and-ltr-solutions` | `mod-105-lucene-family-and-ltr` | Fill mod-105-lucene-family-and-ltr module exercise solutions |
