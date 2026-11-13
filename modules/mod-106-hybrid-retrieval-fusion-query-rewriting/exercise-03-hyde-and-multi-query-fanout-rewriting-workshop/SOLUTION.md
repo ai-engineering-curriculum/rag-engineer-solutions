@@ -145,6 +145,27 @@ class LLMClient(Protocol):
     def complete(self, prompt: str, *, max_tokens: int = 256) -> str: ...
 
 
+# Prefixes that indicate the LLM refused instead of answering. A nonempty
+# refusal ("I cannot help with that request.") would otherwise be embedded
+# as if it were a hypothetical passage and used for dense retrieval.
+_REFUSAL_PREFIXES = (
+    "i cannot",
+    "i can't",
+    "i am unable",
+    "i'm unable",
+    "i am sorry",
+    "i'm sorry",
+    "sorry,",
+    "as an ai",
+    "as a language model",
+)
+
+
+def _looks_like_refusal(text: str) -> bool:
+    head = text.lstrip().lower()
+    return any(head.startswith(p) for p in _REFUSAL_PREFIXES)
+
+
 @dataclass
 class HydeRewriter:
     llm: LLMClient
@@ -155,8 +176,10 @@ class HydeRewriter:
     def embed_query(self, question: str) -> list[float]:
         prompt = self.prompt_template.format(question=question)
         passage = self.llm.complete(prompt, max_tokens=self.max_tokens).strip()
-        if not passage:
-            # Fallback: refuse-case or empty generation. Use the raw query.
+        if not passage or _looks_like_refusal(passage):
+            # Fallback: empty generation or a nonempty refusal. Embed the
+            # raw query instead so the refusal text does not drive dense
+            # retrieval.
             passage = question
         vec = self.embedder.encode(passage, normalize_embeddings=True).tolist()
         return vec

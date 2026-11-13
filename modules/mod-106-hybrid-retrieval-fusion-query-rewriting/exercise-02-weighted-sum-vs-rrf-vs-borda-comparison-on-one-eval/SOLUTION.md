@@ -325,11 +325,17 @@ Per-method case studies:
   weighting gave the rank-40 showing more credit than RRF would —
   `(100 - 40 + 1) = 61` vs. `1/(60+40) = 0.01`. The relevant document
   appeared at fused rank 1 under Borda and rank 4 under RRF.
-- **Where Borda loses.** When the lists have very different lengths or
-  the tails of the lists are noisy, Borda's linear weighting pulls junk
-  up. On `q09`, dense's rank-80 was an off-topic chunk that still got
-  `(100 - 80 + 1) = 21` points, enough to push past weakly-relevant
-  BM25 rank-20 items. RRF ignored that tail entirely.
+- **Where Borda loses.** Borda's linear score scales with list length:
+  rank-1 in a 200-list is worth 200 points; rank-1 in a 100-list is
+  worth 100. On `q09`, a depth-ablation run pulled dense to depth 200
+  while BM25 stayed at 100, silently doubling dense's effective weight
+  at every rank — enough to drag a borderline dense pick into the fused
+  top-3. RRF puts both top-1s at `1/61` regardless of list length and
+  was unaffected. Note that RRF does *not* ignore the tail relative to
+  Borda — a rank-80 document contributes `1/140`, about 44% of a rank-1
+  vote under RRF, versus only 21% of its rank-1 under Borda (21 of
+  100). Borda's failure mode here is list-length sensitivity, not tail
+  greed.
 
 ### 2.6 `notes/recommendation.md` — the decision
 

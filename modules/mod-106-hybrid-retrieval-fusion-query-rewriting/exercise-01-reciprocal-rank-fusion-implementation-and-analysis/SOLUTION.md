@@ -306,8 +306,11 @@ A few invariants to argue from, in increasing subtlety:
 
 1. **Unit test the implementation.** Given
    `ranked_lists = [["a","b","c"], ["b","a","d"]]` and `k = 60`, the fused
-   result must be `[("b", 2/61 + 0/… ), ("a", 1/61 + 1/62), …]` calculated
-   by hand. Test two cases: exact agreement ("a","b" both at rank 1) and
+   result must be `[("a", 1/61 + 1/62), ("b", 1/61 + 1/62), ("c", 1/63),
+   ("d", 1/63)]`, calculated by hand. `a` and `b` tie on score (each
+   appears once at rank 1 and once at rank 2); the documented stable
+   tie-break puts `a` first because it was inserted before `b` (list 1,
+   rank 1). Test two cases: exact agreement ("a","b" both at rank 1) and
    total disagreement. Both should produce documented, hand-verifiable
    scores.
 2. **Confirm invariance to score scale.** Running the driver with BM25
