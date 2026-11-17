@@ -12,3 +12,4 @@
 | 2026-11-14 | `fill-mod-107-reranking-and-context-assembly-solutions` | `mod-107-reranking-and-context-assembly` | Fill mod-107-reranking-and-context-assembly module exercise solutions |
 | 2026-11-13 | `fill-mod-106-hybrid-retrieval-fusion-query-rewriting-solutions` | `mod-106-hybrid-retrieval-fusion-query-rewriting` | Fill mod-106-hybrid-retrieval-fusion-query-rewriting module exercise solutions |
 | 2026-11-14 | `fill-mod-108-retrieval-specific-prompting-solutions` | `mod-108-retrieval-specific-prompting` | Fill mod-108-retrieval-specific-prompting module exercise solutions |
+| 2026-11-16 | `fill-mod-109-retrieval-quality-evaluation-solutions` | `mod-109-retrieval-quality-evaluation` | Fill mod-109-retrieval-quality-evaluation module exercise solutions |
