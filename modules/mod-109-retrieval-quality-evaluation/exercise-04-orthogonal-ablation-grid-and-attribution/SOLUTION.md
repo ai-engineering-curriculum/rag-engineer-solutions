@@ -269,10 +269,15 @@ def fit_effects(
     df = df[df["metric"] == metric].copy()
     if df.empty:
         raise ValueError(f"No rows for metric={metric!r} in {long_csv}")
-    # Patsy formula: value ~ C(f1) + C(f2) + ... + C(f1):C(f2) + ...
-    terms = [f"C({f})" for f in factors]
+    # Sum (deviation) coding so each main-effect coefficient is the
+    # factor's *marginal* effect — averaged over the other factors'
+    # levels — not the effect-at-reference that patsy's default
+    # treatment coding produces. Treatment coding silently reports a
+    # conditional slice whenever factors interact, which is exactly
+    # the scenario an ablation grid is built to surface.
+    terms = [f"C({f}, Sum)" for f in factors]
     for a, b in combinations(factors, 2):
-        terms.append(f"C({a}):C({b})")
+        terms.append(f"C({a}, Sum):C({b}, Sum)")
     formula = f"value ~ {' + '.join(terms)}"
     model = smf.ols(formula=formula, data=df).fit()
     effects: list[Effect] = []
@@ -307,12 +312,19 @@ def pareto(effects: list[Effect]) -> list[tuple[str, float]]:
 
 **Choices and why:**
 
-- **OLS with patsy categorical factors** is the shortest path
-  to clean main-effect and interaction estimates. Because the
-  grid is orthogonal, OLS coefficients match the classical
-  factorial-design *effect* values up to a factor of two
-  (some textbooks define the effect as 2× the OLS coefficient
-  — be consistent in the memo).
+- **OLS with Sum-coded categorical factors** is the shortest
+  path to clean main-effect and interaction estimates in a
+  balanced factorial. Sum coding places each level symmetric
+  around the grand mean, so the main-effect coefficient of a
+  factor is its *marginal* effect across the other factors'
+  levels — the quantity you want to attribute. (Patsy's
+  default `C(f)` is treatment coding, which reports the
+  factor's effect only at every other factor's reference
+  level; in the presence of interactions the two differ.)
+  Classical factorial design further defines the *effect* as
+  the between-level difference, which is 2× the Sum-coded
+  coefficient on a two-level factor; pick one convention
+  (coefficient or effect) and stay with it in the memo.
 - **Pairwise interactions only.** Three-way interactions in a
   2^6 design are low-power and rarely interpretable. If the
   memo needs them, re-fit with the extra terms; otherwise the
@@ -333,30 +345,32 @@ grid against nDCG@10:
 ```markdown
 | Effect | Estimate | 95% CI | p-value | Kind |
 |---|---|---|---|---|
-| `C(rerank)[T.cross-encoder]` | +0.0712 | (+0.0611, +0.0813) | 1.3e-28 | main |
-| `C(bm25)[T.on]` | +0.0429 | (+0.0328, +0.0530) | 2.1e-13 | main |
-| `C(bm25)[T.on]:C(rerank)[T.cross-encoder]` | +0.0188 | (+0.0062, +0.0314) | 3.5e-03 | interaction |
-| `C(query_rewrite)[T.multi-query]` | +0.0182 | (+0.0081, +0.0283) | 4.8e-04 | main |
-| `C(embedder)[T.tuned-dense]` | +0.0171 | (+0.0070, +0.0272) | 9.3e-04 | main |
-| `C(topn_to_rerank)[T.200]` | +0.0094 | (-0.0007, +0.0195) | 0.067 | main |
-| `C(fusion)[T.linear]` | -0.0021 | (-0.0122, +0.0080) | 0.68 | main |
-| `C(query_rewrite)[T.multi-query]:C(rerank)[T.cross-encoder]` | -0.0162 | (-0.0288, -0.0036) | 0.012 | interaction |
+| `C(rerank, Sum)[S.cross-encoder]` | +0.0356 | (+0.0306, +0.0407) | 1.3e-28 | main |
+| `C(bm25, Sum)[S.on]` | +0.0215 | (+0.0164, +0.0265) | 2.1e-13 | main |
+| `C(query_rewrite, Sum)[S.multi-query]` | +0.0091 | (+0.0041, +0.0142) | 4.8e-04 | main |
+| `C(embedder, Sum)[S.tuned-dense]` | +0.0086 | (+0.0035, +0.0136) | 9.3e-04 | main |
+| `C(topn_to_rerank, Sum)[S.200]` | +0.0047 | (-0.0004, +0.0098) | 0.067 | main |
+| `C(bm25, Sum)[S.on]:C(rerank, Sum)[S.cross-encoder]` | +0.0047 | (+0.0016, +0.0079) | 3.5e-03 | interaction |
+| `C(query_rewrite, Sum)[S.multi-query]:C(rerank, Sum)[S.cross-encoder]` | -0.0041 | (-0.0072, -0.0009) | 0.012 | interaction |
+| `C(fusion, Sum)[S.linear]` | -0.0011 | (-0.0061, +0.0040) | 0.68 | main |
 ```
 
-**Reading:**
+**Reading (effects, i.e. between-level deltas = 2× the Sum
+coefficient for a two-level main, 4× for a 2×2 interaction):**
 
-- **Rerank is doing most of the work** (+0.071 nDCG@10). This
-  is the single biggest knob in the grid.
-- **BM25 matters** (+0.043) and **interacts positively** with
-  rerank (+0.019): adding BM25 to the candidate set gives the
-  reranker more variety to work with. The combined gain of
-  BM25-on + rerank-on is roughly +0.043 + +0.071 + +0.019 =
-  +0.133, not +0.114, because of the interaction.
-- **Query rewrite helps alone** (+0.018) but **interacts
-  negatively with rerank** (-0.016): the extra queries hand
-  the reranker more noise, and the reranker already eats most
-  of the rewriter's lunch. If you ship rerank, shipping query
-  rewrite is roughly neutral.
+- **Rerank is doing most of the work** (effect +0.071 nDCG@10).
+  This is the single biggest knob in the grid.
+- **BM25 matters** (effect +0.043) and **interacts positively**
+  with rerank (interaction effect +0.019): adding BM25 to the
+  candidate set gives the reranker more variety to work with.
+  The combined gain of BM25-on + rerank-on is roughly +0.043 +
+  +0.071 + +0.019 = +0.133, not +0.114, because of the
+  interaction.
+- **Query rewrite helps alone** (effect +0.018) but **interacts
+  negatively with rerank** (interaction effect -0.016): the
+  extra queries hand the reranker more noise, and the reranker
+  already eats most of the rewriter's lunch. If you ship
+  rerank, shipping query rewrite is roughly neutral.
 - **Fusion method does not matter** (p=0.68). RRF and linear
   fusion are interchangeable at this grid size; the memo can
   default to RRF for simplicity.
@@ -454,10 +468,13 @@ Fail-fast smells:
   almost always a non-trivial interaction. A main-effects-only
   model will under- or over-estimate both knobs.
 - **Confusing effect with coefficient.** Classical factorial
-  design defines the effect as 2× the OLS coefficient on a
-  ±1-coded design; patsy's `T.` treatment-coded coefficients
-  are the between-level difference, not 2×. Be consistent in
-  the memo.
+  design defines the *effect* as the between-level difference;
+  that equals 2× a Sum-coded (`C(f, Sum)`, ±1) main coefficient
+  and 1× a treatment-coded (`C(f)`, 0/1) coefficient for a
+  two-level factor. This solution uses Sum coding so the main
+  coefficients are marginal (averaged over other factors) and
+  comparable to each other; report *effects* in the memo so
+  the numbers live on the response scale.
 - **Shipping on main effects alone when the interaction is
   negative.** Query-rewrite main effect +0.018, interaction
   with rerank -0.016, net +0.002. Shipping on the main

@@ -305,41 +305,31 @@ class TaskFit:
     delta: float                    # public - inhouse
 
 def gather_metrics(
-    runs_root: Path, scorer,            # scorer: (qrels, run) -> {metric: float}
+    runs_root: Path, scorer,            # scorer: (qrels, run) -> {measure: float}
     tasks: list[str],
     system_tag: str,
     metric: str,
     inhouse_qrels: Path, inhouse_run: Path,
-) -> tuple[list[TaskFit], float]:
+) -> list[TaskFit]:
+    # The in-house run is invariant across public tasks — score it once.
+    # ir_measures-based scorers (e.g. exercise-02's `score_aggregate`) key
+    # their output dict by measure objects; normalise to strings so the
+    # metric name from `tasks.yaml` (e.g. "nDCG@10") indexes correctly.
+    in_agg = {str(k): v for k, v in scorer(inhouse_qrels, inhouse_run).items()}
+    inhouse_metric = in_agg[metric]
     fits: list[TaskFit] = []
     for t in tasks:
         qrels_path = runs_root / t / f"{t}.qrels.trec"
         run_path = runs_root / t / f"{t}.run.trec"
-        agg = scorer(qrels_path, run_path)
+        agg = {str(k): v for k, v in scorer(qrels_path, run_path).items()}
         public_metric = agg[metric]
-        in_agg = scorer(inhouse_qrels, inhouse_run)
-        inhouse_metric = in_agg[metric]
         fits.append(TaskFit(
             task=t,
             public_metric=public_metric,
             inhouse_metric=inhouse_metric,
             delta=public_metric - inhouse_metric,
         ))
-    return fits, _rank_correlation(fits)
-
-def _rank_correlation(fits: list[TaskFit]) -> float:
-    """Kendall tau between public and in-house metric across tasks.
-
-    Interpretation note: for one *system*, this tau is computed
-    across tasks and answers the question "do easy tasks for the
-    system match easy in-house queries?" For multi-system corpus-
-    fit analysis, compute tau across systems for one task."""
-    if len(fits) < 3:
-        return float("nan")
-    pub = np.array([f.public_metric for f in fits])
-    inh = np.array([f.inhouse_metric for f in fits])
-    tau, _ = stats.kendalltau(pub, inh)
-    return float(tau)
+    return fits
 
 def multi_system_tau(
     public_by_system: dict[str, dict[str, float]],  # system -> task -> metric
@@ -373,12 +363,15 @@ def render_corpus_fit(fits: list[TaskFit], metric: str) -> str:
 
 **Choices and why:**
 
-- **Two tau computations, two questions.** Single-system tau
-  across tasks answers "which tasks look easy for *this*
-  system's shape of competence." Multi-system tau across
-  systems for a given task answers "does this task rank
-  systems the same way the in-house qrels do." The second is
-  the one that determines whether the task is a useful proxy.
+- **Rank agreement is a cross-system question, not a cross-task
+  one.** For a single pipeline the in-house metric is a scalar;
+  Kendall tau against a constant is undefined. The useful tau
+  is `multi_system_tau`: for a given public task, how similar is
+  its system-level ranking to the in-house system-level ranking?
+  That is what decides whether the task is a useful proxy.
+  `gather_metrics` therefore only returns the per-task fits; the
+  caller feeds the metrics from several systems into
+  `multi_system_tau` to get the rank-agreement number.
 - **Kendall tau, not Spearman.** Kendall is more robust on
   small n (we have 4–6 tasks and a handful of systems). For
   larger grids either is fine.
@@ -387,9 +380,10 @@ def render_corpus_fit(fits: list[TaskFit], metric: str) -> str:
   because BEIR tasks have relatively small corpora and dense
   qrels). The sign is meaningful; keep the convention stable
   so the memo reads correctly over time.
-- **Return the fits and the tau as a pair.** The caller
-  decides whether to fail the release gate on the tau, on an
-  individual delta, or both.
+- **One in-house score per invocation.** The in-house run does
+  not depend on the public task, so score it once and reuse the
+  value — scoring per task would waste work and risk drift if
+  the scorer were non-deterministic.
 
 ### 2.6 Example output — `reports/corpus_fit.md`
 
