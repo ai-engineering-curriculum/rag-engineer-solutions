@@ -231,8 +231,9 @@ def write_long_csv(rows: list[dict], out: Path) -> None:
   per metric) force a reshape inside the analysis code and
   invite bugs on the join.
 - **Factor levels are columns in the long CSV.** Keeps the
-  attribution model a one-liner (`value ~ C(bm25) + C(rerank)
-  + ...`) without re-joining against the levels file.
+  attribution model a one-liner
+  (`value ~ C(bm25) + C(rerank) + ...`) without re-joining
+  against the levels file.
 - **`run_cell` is injected.** The orchestrator does not care
   how the pipeline is assembled; it only cares about
   deterministic per-cell runs. This keeps the ablation grid
@@ -421,7 +422,7 @@ the reranker it replaced."*
 | Orthogonality | Full factorial OR a documented fractional design (Taguchi L8/L16). No haphazard "we tried these combinations" selections. |
 | Per-query data | Long-format CSV: one row per `(cell, query, metric)`. |
 | Model | OLS with main effects + pairwise interactions; cluster-robust SEs by `query_id`. |
-| Effect table | Sorted by |estimate|; names main vs interaction; reports CI and p. |
+| Effect table | Sorted by `abs(estimate)`; names main vs interaction; reports CI and p. |
 | Attribution memo | A decision for every factor, with the interaction effects explicitly called out. |
 | Reproducibility | Same grid + qrels ⇒ same effects table (seed fixed in `noise.seed`). |
 | Residuals | R² ≥ 0.8 OR a note explaining why the model misses the metric's variance. |

@@ -416,8 +416,8 @@ Fail-fast smells:
 - Paired testing in IR:
   - Smucker, M. et al. (2007), "A comparison of statistical
     significance tests for information retrieval evaluation,"
-    *CIKM 2007*. The standard recommendation for permutation
-    + paired t + Wilcoxon on IR deltas.
+    *CIKM 2007*. The standard recommendation for pairing
+    permutation, paired t, and Wilcoxon on IR deltas.
   - Sakai, T. (2006), "Evaluating evaluation metrics based on
     the bootstrap," *SIGIR 2006*. Bootstrap CIs on IR metrics.
 - Statistical tests:
