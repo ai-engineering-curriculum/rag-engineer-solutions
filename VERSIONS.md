@@ -13,3 +13,4 @@
 | 2026-11-13 | `fill-mod-106-hybrid-retrieval-fusion-query-rewriting-solutions` | `mod-106-hybrid-retrieval-fusion-query-rewriting` | Fill mod-106-hybrid-retrieval-fusion-query-rewriting module exercise solutions |
 | 2026-11-14 | `fill-mod-108-retrieval-specific-prompting-solutions` | `mod-108-retrieval-specific-prompting` | Fill mod-108-retrieval-specific-prompting module exercise solutions |
 | 2026-11-16 | `fill-mod-109-retrieval-quality-evaluation-solutions` | `mod-109-retrieval-quality-evaluation` | Fill mod-109-retrieval-quality-evaluation module exercise solutions |
+| 2026-11-17 | `fill-mod-110-orchestration-and-mcp-exposure-solutions` | `mod-110-orchestration-and-mcp-exposure` | Fill mod-110-orchestration-and-mcp-exposure module exercise solutions |
