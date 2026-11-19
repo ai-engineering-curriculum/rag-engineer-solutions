@@ -14,3 +14,4 @@
 | 2026-11-14 | `fill-mod-108-retrieval-specific-prompting-solutions` | `mod-108-retrieval-specific-prompting` | Fill mod-108-retrieval-specific-prompting module exercise solutions |
 | 2026-11-16 | `fill-mod-109-retrieval-quality-evaluation-solutions` | `mod-109-retrieval-quality-evaluation` | Fill mod-109-retrieval-quality-evaluation module exercise solutions |
 | 2026-11-17 | `fill-mod-110-orchestration-and-mcp-exposure-solutions` | `mod-110-orchestration-and-mcp-exposure` | Fill mod-110-orchestration-and-mcp-exposure module exercise solutions |
+| 2026-11-18 | `fill-mod-112-enterprise-retrieval-acl-structured-graph-multimodal-solutions` | `mod-112-enterprise-retrieval-acl-structured-graph-multimodal` | Fill mod-112-enterprise-retrieval-acl-structured-graph-multimodal module exercise solutions |
